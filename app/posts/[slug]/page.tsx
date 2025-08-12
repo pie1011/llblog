@@ -105,7 +105,7 @@ export default async function PostPage({ params }: PostPageProps) {
         {/* Post Content */}
         <div className="bg-white rounded-lg shadow-md p-8 mb-8">
           <div 
-            className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-teal-600 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700"
+            className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-800 prose-a:text-teal-600 prose-strong:text-gray-900 prose-ul:text-gray-800 prose-ol:text-gray-800"
             dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
         </div>

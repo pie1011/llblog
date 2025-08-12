@@ -74,10 +74,13 @@ export async function getPostContent(slug: string): Promise<string> {
   if (!post) return ''
 
   const processedContent = await remark()
-    .use(html)
+    .use(html, {
+      sanitize: false, // Allow HTML in markdown
+    })
     .process(post.content)
   
-  return processedContent.toString()
+  // Add wrapper div to ensure proper styling
+  return `<div class="text-black">${processedContent.toString()}</div>`
 }
 
 export function getCategories() {
