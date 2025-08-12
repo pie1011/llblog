@@ -1,10 +1,8 @@
-import { Suspense } from 'react'
 import Link from 'next/link'
-import { getPosts } from '../lib/db'
+import { getAllPosts } from '../lib/posts'
 
-// Homepage with Netlify DB integration
-export default async function HomePage() {
-  const posts = await getPosts()
+export default function HomePage() {
+  const posts = getAllPosts()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
@@ -119,67 +117,56 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <Suspense fallback={<div className="text-center">Loading posts...</div>}>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {posts?.slice(0, 6).map((post) => (
-                <article key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                  {post.featured_image && (
-                    <img 
-                      src={post.featured_image} 
-                      alt={post.title}
-                      className="w-full h-48 object-cover"
-                    />
-                  )}
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-3 line-clamp-2">
-                      {post.title}
-                    </h3>
-                    {post.excerpt && (
-                      <p className="text-gray-600 mb-4 line-clamp-3">
-                        {post.excerpt}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
-                        {post.published_at ? new Date(post.published_at).toLocaleDateString() : 'Draft'}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {posts.slice(0, 6).map((post) => (
+              <article key={post.slug} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                {post.featuredImage && (
+                  <img 
+                    src={post.featuredImage} 
+                    alt={post.title}
+                    className="w-full h-48 object-cover"
+                  />
+                )}
+                <div className="p-6">
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {post.categories.slice(0, 2).map((category) => (
+                      <span key={category} className="px-2 py-1 bg-teal-100 text-teal-800 text-xs rounded-full">
+                        {category}
                       </span>
-                      <Link 
-                        href={`/posts/${post.slug}`}
-                        className="text-teal-600 hover:text-teal-700 font-medium"
-                      >
-                        Read more →
-                      </Link>
-                    </div>
+                    ))}
                   </div>
-                </article>
-              ))}
-            </div>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-3 line-clamp-2">
+                    {post.title}
+                  </h3>
+                  {post.excerpt && (
+                    <p className="text-gray-600 mb-4 line-clamp-3">
+                      {post.excerpt}
+                    </p>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">
+                      {new Date(post.date).toLocaleDateString()}
+                    </span>
+                    <Link 
+                      href={`/posts/${post.slug}`}
+                      className="text-teal-600 hover:text-teal-700 font-medium"
+                    >
+                      Read more →
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
 
-            {posts.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📝</div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">No posts yet!</h3>
-                <p className="text-gray-600 mb-6">But we're working on some great content for you.</p>
-                <Link 
-                  href="/admin"
-                  className="bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
-                >
-                  Add First Post
-                </Link>
-              </div>
-            )}
-
-            {posts.length > 0 && (
-              <div className="text-center mt-12">
-                <Link 
-                  href="/posts"
-                  className="bg-teal-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
-                >
-                  View All Posts
-                </Link>
-              </div>
-            )}
-          </Suspense>
+          <div className="text-center mt-12">
+            <Link 
+              href="/posts"
+              className="bg-teal-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
+            >
+              View All Posts
+            </Link>
+          </div>
         </div>
       </section>
 
