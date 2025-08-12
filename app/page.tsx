@@ -50,7 +50,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-800 mb-4">
-              What You'll Find Here
+              What You Will Find Here
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Five core areas to help you thrive in the beautiful chaos of family life
