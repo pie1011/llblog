@@ -1,52 +1,213 @@
-export const dynamic = "force-dynamic"; // This disables SSG and ISR
+import { Suspense } from 'react'
+import Link from 'next/link'
+import { getPosts } from '../lib/db'
 
-import prisma from "@/lib/prisma";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-
-export default async function Home() {
-  if (!process.env.DATABASE_URL || process.env.DATABASE_URL === "prisma+postgres://accelerate.prisma-data.net/?api_key=API_KEY") {
-    redirect("/setup");
-  }
-
-  const posts = await prisma.post.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 6,
-    include: {
-      author: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
+// Homepage with Netlify DB integration
+export default async function HomePage() {
+  const posts = await getPosts()
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center -mt-16 p-8">
-      <h1 className="text-5xl font-extrabold mb-12 text-[#333333]">Recent Posts</h1>
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl">
-        {posts.map((post) => (
-          <Link key={post.id} href={`/posts/${post.id}`} className="group">
-            <div className="border rounded-lg shadow-md bg-white p-6 hover:shadow-lg transition-shadow duration-300">
-              <h2 className="text-2xl font-semibold text-blue-600 group-hover:underline mb-2">{post.title}</h2>
-              <p className="text-sm text-gray-500">by {post.author ? post.author.name : "Anonymous"}</p>
-              <p className="text-xs text-gray-400 mb-4">
-                {new Date(post.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-              <div className="relative">
-                <p className="text-gray-700 leading-relaxed line-clamp-2">{post.content || "No content available."}</p>
-                <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-gray-50 to-transparent" />
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-teal-600 to-blue-600 text-white">
+        <div className="absolute inset-0 bg-black opacity-10"></div>
+        <div className="relative max-w-6xl mx-auto px-4 py-24">
+          <div className="text-center">
+            <div className="mb-6">
+              <div className="w-32 h-32 mx-auto rounded-full border-4 border-white shadow-lg bg-white flex items-center justify-center text-6xl">
+                🐕
               </div>
             </div>
-          </Link>
-        ))}
-      </div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              Laughs & Laundry
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 text-teal-100">
+              Real life, real solutions, real laughs
+            </p>
+            <p className="text-lg mb-8 max-w-2xl mx-auto text-teal-50">
+              Managing the beautiful chaos of family life with practical systems, 
+              teen parenting wisdom, and neurodivergent-friendly solutions.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                href="/posts" 
+                className="bg-white text-teal-600 px-8 py-4 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
+              >
+                Browse Posts
+              </Link>
+              <Link 
+                href="#newsletter" 
+                className="border-2 border-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-teal-600 transition-colors"
+              >
+                Join Newsletter
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Content Pillars */}
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+              What You'll Find Here
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Five core areas to help you thrive in the beautiful chaos of family life
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: '🏠',
+                title: 'Household Systems',
+                description: 'Cleaning routines, organization solutions, and decluttering strategies that actually work for busy families',
+                color: 'bg-emerald-100 text-emerald-800'
+              },
+              {
+                icon: '👨‍👩‍👧‍👦',
+                title: 'Teen Parent Life',
+                description: 'Navigating the unique challenges of parenting older kids and preparing teens for independence',
+                color: 'bg-purple-100 text-purple-800'
+              },
+              {
+                icon: '💰',
+                title: 'Family Finance',
+                description: 'Budgeting with teenagers, college prep, and teaching financial literacy to teens',
+                color: 'bg-amber-100 text-amber-800'
+              },
+              {
+                icon: '⏰',
+                title: 'Time Management',
+                description: 'Juggling work, household, family activities, and self-care for busy parents',
+                color: 'bg-red-100 text-red-800'
+              },
+              {
+                icon: '🧠',
+                title: 'Neurodivergent-Friendly',
+                description: 'ADHD-friendly systems, supporting neurodivergent teens, and executive function building',
+                color: 'bg-cyan-100 text-cyan-800'
+              }
+            ].map((pillar, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div className={`w-16 h-16 rounded-full ${pillar.color} flex items-center justify-center text-2xl mb-4`}>
+                  {pillar.icon}
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                  {pillar.title}
+                </h3>
+                <p className="text-gray-600">
+                  {pillar.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Posts */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+              Latest Posts
+            </h2>
+            <p className="text-xl text-gray-600">
+              Fresh insights from the trenches of family life
+            </p>
+          </div>
+
+          <Suspense fallback={<div className="text-center">Loading posts...</div>}>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {posts?.slice(0, 6).map((post) => (
+                <article key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                  {post.featured_image && (
+                    <img 
+                      src={post.featured_image} 
+                      alt={post.title}
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-3 line-clamp-2">
+                      {post.title}
+                    </h3>
+                    {post.excerpt && (
+                      <p className="text-gray-600 mb-4 line-clamp-3">
+                        {post.excerpt}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500">
+                        {post.published_at ? new Date(post.published_at).toLocaleDateString() : 'Draft'}
+                      </span>
+                      <Link 
+                        href={`/posts/${post.slug}`}
+                        className="text-teal-600 hover:text-teal-700 font-medium"
+                      >
+                        Read more →
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {posts.length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">📝</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">No posts yet!</h3>
+                <p className="text-gray-600 mb-6">But we're working on some great content for you.</p>
+                <Link 
+                  href="/admin"
+                  className="bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
+                >
+                  Add First Post
+                </Link>
+              </div>
+            )}
+
+            {posts.length > 0 && (
+              <div className="text-center mt-12">
+                <Link 
+                  href="/posts"
+                  className="bg-teal-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
+                >
+                  View All Posts
+                </Link>
+              </div>
+            )}
+          </Suspense>
+        </div>
+      </section>
+
+      {/* Newsletter CTA */}
+      <section id="newsletter" className="py-20 bg-gradient-to-r from-teal-600 to-blue-600 text-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-6">
+            Join the Community
+          </h2>
+          <p className="text-xl mb-8 text-teal-100">
+            Get weekly tips, printables, and real talk about managing family life 
+            delivered straight to your inbox.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
+            <input 
+              type="email" 
+              placeholder="Enter your email"
+              className="flex-1 px-6 py-4 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-white"
+            />
+            <button className="bg-white text-teal-600 px-8 py-4 rounded-lg font-semibold hover:bg-teal-50 transition-colors">
+              Subscribe
+            </button>
+          </div>
+          <p className="text-sm text-teal-200 mt-4">
+            Free toolkit for subscribers: cleaning schedules, meal planning templates, and more!
+          </p>
+        </div>
+      </section>
     </div>
-  );
+  )
 }
