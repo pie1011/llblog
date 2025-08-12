@@ -4,7 +4,7 @@ import { getAllPosts, getPostBySlug, getPostContent } from '../../../lib/posts'
 import { Metadata } from 'next'
 
 interface PostPageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 // Generate static params for all posts
@@ -17,7 +17,8 @@ export async function generateStaticParams() {
 
 // Generate metadata for each post
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
-  const post = getPostBySlug(params.slug)
+  const { slug } = await params
+  const post = getPostBySlug(slug)
   
   if (!post) {
     return {
@@ -37,13 +38,14 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  const post = getPostBySlug(params.slug)
+  const { slug } = await params
+  const post = getPostBySlug(slug)
   
   if (!post) {
     notFound()
   }
 
-  const contentHtml = await getPostContent(params.slug)
+  const contentHtml = await getPostContent(slug)
 
   return (
     <div className="min-h-screen bg-gray-50">
